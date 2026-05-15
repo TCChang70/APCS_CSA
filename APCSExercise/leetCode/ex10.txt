@@ -1,0 +1,23 @@
+﻿public class LongestCommonPrefix {
+    public String longestCommonPrefix(String[] strs) {
+        if (strs == null || strs.length == 0) return "";
+
+        String prefix = strs[0]; // 以第一個字串作為初始前綴
+        for (int i = 1; i < strs.length; i++) {
+            while (strs[i].indexOf(prefix) != 0) {
+                prefix = prefix.substring(0, prefix.length() - 1); // 持續縮短前綴
+                if (prefix.isEmpty()) return ""; // 沒有共同前綴
+            }
+        }
+        return prefix;
+    }
+
+    public static void main(String[] args) {
+        LongestCommonPrefix solution = new LongestCommonPrefix();
+
+        System.out.println(solution.longestCommonPrefix(new String[]{"flower", "flow", "flight"})); // "fl"
+        System.out.println(solution.longestCommonPrefix(new String[]{"dog", "racecar", "car"}));    // ""
+        System.out.println(solution.longestCommonPrefix(new String[]{"interview", "internet", "internal"})); // "inte"
+        System.out.println(solution.longestCommonPrefix(new String[]{"a"})); // "a"
+    }
+}

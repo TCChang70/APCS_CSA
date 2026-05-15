@@ -1,0 +1,26 @@
+﻿import java.util.*;
+
+public class LogicOperator {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt(), b = sc.nextInt(), result = sc.nextInt();
+        boolean found = false;
+
+        if ((a & b) == result) {
+            System.out.println("AND");
+            found = true;
+        }
+        if ((a | b) == result) {
+            System.out.println("OR");
+            found = true;
+        }
+        if ((a ^ b) == result) {
+            System.out.println("XOR");
+            found = true;
+        }
+
+        if (!found) System.out.println("IMPOSSIBLE");
+
+        sc.close();
+    }
+}

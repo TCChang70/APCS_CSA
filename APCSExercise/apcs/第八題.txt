@@ -1,0 +1,41 @@
+﻿import java.util.*;
+
+public class KInterleave {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int k = Integer.parseInt(sc.nextLine());
+        String s = sc.nextLine();
+
+        List<Integer> blockLens = new ArrayList<>();
+        List<Boolean> isUpper = new ArrayList<>();
+
+        int i = 0;
+        while (i < s.length()) {
+            char ch = s.charAt(i);
+            boolean upper = Character.isUpperCase(ch);
+            int j = i;
+            while (j < s.length() && Character.isUpperCase(s.charAt(j)) == upper) {
+                j++;
+            }
+            blockLens.add(j - i);
+            isUpper.add(upper);
+            i = j;
+        }
+
+        int maxLen = 0;
+        for (int j = 0; j < blockLens.size(); j++) {
+            int len = 0, count = 0;
+            boolean expectedUpper = isUpper.get(j);
+            for (int l = j; l < blockLens.size(); l++) {
+                if (isUpper.get(l) != expectedUpper || blockLens.get(l) < k) break;
+                len += k;
+                count++;
+                expectedUpper = !expectedUpper;
+            }
+            maxLen = Math.max(maxLen, len);
+        }
+
+        System.out.println(maxLen);
+        sc.close();
+    }
+}

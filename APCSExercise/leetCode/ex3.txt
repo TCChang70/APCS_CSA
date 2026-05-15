@@ -1,0 +1,24 @@
+﻿public class PalindromeNumber {
+    public boolean isPalindrome(int x) {
+        // 負數與以0結尾的數（非0本身）不可能是回文
+        if (x < 0 || (x % 10 == 0 && x != 0)) return false;
+
+        int reversed = 0;
+        while (x > reversed) {
+            reversed = reversed * 10 + x % 10;
+            x /= 10;
+        }
+
+        // 奇數與偶數位數都處理得當
+        return x == reversed || x == reversed / 10;
+    }
+
+    public static void main(String[] args) {
+        PalindromeNumber solution = new PalindromeNumber();
+
+        System.out.println(solution.isPalindrome(121));   // true
+        System.out.println(solution.isPalindrome(-121));  // false
+        System.out.println(solution.isPalindrome(10));    // false
+        System.out.println(solution.isPalindrome(0));     // true
+    }
+}

@@ -1,0 +1,40 @@
+﻿import java.util.*;
+
+public class PhoneLetterCombinations {
+    private static final Map<Character, String> digitToLetters = Map.of(
+        '2', "abc", '3', "def",
+        '4', "ghi", '5', "jkl",
+        '6', "mno", '7', "pqrs",
+        '8', "tuv", '9', "wxyz"
+    );
+
+    public List<String> letterCombinations(String digits) {
+        List<String> result = new ArrayList<>();
+        if (digits == null || digits.isEmpty()) return result;
+        backtrack(digits, 0, new StringBuilder(), result);
+        return result;
+    }
+
+    private void backtrack(String digits, int index, StringBuilder combination, List<String> result) {
+        if (index == digits.length()) {
+            result.add(combination.toString());
+            return;
+        }
+
+        String letters = digitToLetters.get(digits.charAt(index));
+        for (char letter : letters.toCharArray()) {
+            combination.append(letter);
+            backtrack(digits, index + 1, combination, result);
+            combination.deleteCharAt(combination.length() - 1); // 回溯
+        }
+    }
+
+    // 測試主程式
+    public static void main(String[] args) {
+        PhoneLetterCombinations plc = new PhoneLetterCombinations();
+
+        System.out.println(plc.letterCombinations("23"));  // [ad, ae, af, bd, be, bf, cd, ce, cf]
+        System.out.println(plc.letterCombinations(""));    // []
+        System.out.println(plc.letterCombinations("2"));   // [a, b, c]
+    }
+}

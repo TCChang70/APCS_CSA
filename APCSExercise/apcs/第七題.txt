@@ -1,0 +1,29 @@
+﻿import java.util.*;
+
+public class SmallGroups {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[] friend = new int[n];
+        boolean[] visited = new boolean[n];
+
+        for (int i = 0; i < n; i++) {
+            friend[i] = sc.nextInt();
+        }
+
+        int groups = 0;
+        for (int i = 0; i < n; i++) {
+            if (!visited[i]) {
+                int current = i;
+                while (!visited[current]) {
+                    visited[current] = true;
+                    current = friend[current];
+                }
+                groups++;
+            }
+        }
+
+        System.out.println(groups);
+        sc.close();
+    }
+}

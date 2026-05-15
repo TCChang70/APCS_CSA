@@ -1,0 +1,37 @@
+﻿import java.util.*;
+
+public class LineCoverage {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        int[][] segments = new int[n][2];
+
+        for (int i = 0; i < n; i++) {
+            segments[i][0] = sc.nextInt();
+            segments[i][1] = sc.nextInt();
+        }
+
+        Arrays.sort(segments, Comparator.comparingInt(a -> a[0]));
+
+        int total = 0;
+        int start = segments[0][0];
+        int end = segments[0][1];
+
+        for (int i = 1; i < n; i++) {
+            int currStart = segments[i][0];
+            int currEnd = segments[i][1];
+
+            if (currStart <= end) {
+                end = Math.max(end, currEnd);
+            } else {
+                total += end - start;
+                start = currStart;
+                end = currEnd;
+            }
+        }
+
+        total += end - start;
+        System.out.println(total);
+        sc.close();
+    }
+}

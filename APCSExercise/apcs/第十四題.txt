@@ -1,0 +1,44 @@
+﻿import java.util.*;
+
+public class BaseballGame {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        List<String>[] records = new ArrayList[9];
+        for (int i = 0; i < 9; i++) {
+            int k = sc.nextInt();
+            records[i] = new ArrayList<>();
+            for (int j = 0; j < k; j++) {
+                records[i].add(sc.next());
+            }
+        }
+        int outTarget = sc.nextInt();
+        int outCount = 0, score = 0, batter = 0;
+        int[] base = new int[3]; // 一壘到三壘
+
+        while (outCount < outTarget) {
+            String result = records[batter % 9].remove(0);
+            if (records[batter % 9].isEmpty()) records[batter % 9].add("FO"); // 保底
+
+            if (result.equals("FO") || result.equals("GO") || result.equals("SO")) {
+                outCount++;
+                if (outCount % 3 == 0) base = new int[3];
+            } else {
+                int move = result.equals("1B") ? 1 :
+                           result.equals("2B") ? 2 :
+                           result.equals("3B") ? 3 : 4;
+                for (int i = 2; i >= 0; i--) {
+                    if (base[i] == 1) {
+                        if (i + move >= 3) score++;
+                        else base[i + move] = 1;
+                        base[i] = 0;
+                    }
+                }
+                if (move >= 4) score++; // HR 自己得分
+                else base[move - 1] = 1;
+            }
+            batter++;
+        }
+        System.out.println(score);
+        sc.close();
+    }
+}

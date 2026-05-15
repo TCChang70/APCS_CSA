@@ -1,0 +1,56 @@
+﻿import java.util.*;
+
+public class ScoreIndicator {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // 讀取學生人數
+        int n = sc.nextInt();
+        int[] scores = new int[n];
+
+        // 讀取分數
+        for (int i = 0; i < n; i++) {
+            scores[i] = sc.nextInt();
+        }
+
+        // 排序
+        Arrays.sort(scores);
+
+        // 印出排序後成績
+        for (int i = 0; i < n; i++) {
+            System.out.print(scores[i]);
+            if (i != n - 1) {
+                System.out.print(" ");
+            }
+        }
+        System.out.println();
+
+        // 計算不及格中最高，及格中最低
+        int maxFail = -1;  // < 60
+        int minPass = 101; // >= 60
+
+        for (int score : scores) {
+            if (score < 60) {
+                maxFail = score;
+            } else {
+                minPass = Math.min(minPass, score);
+            }
+        }
+
+        // 第二行：不及格中最高
+        if (maxFail == -1) {
+            System.out.println("best case");
+        } else {
+            System.out.println(maxFail);
+        }
+
+        // 第三行：及格中最低
+        if (minPass == 101) {
+            System.out.println("worst case");
+        } else {
+            System.out.println(minPass);
+        }
+
+        sc.close();
+    }
+}

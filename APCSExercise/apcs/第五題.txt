@@ -1,0 +1,65 @@
+﻿import java.util.*;
+
+public class MatrixTransformReverse {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int r = sc.nextInt();
+        int c = sc.nextInt();
+        int m = sc.nextInt();
+        sc.nextLine();
+
+        List<List<Integer>> matrix = new ArrayList<>();
+        for (int i = 0; i < r; i++) {
+            List<Integer> row = new ArrayList<>();
+            for (int j = 0; j < c; j++) {
+                row.add(sc.nextInt());
+            }
+            matrix.add(row);
+        }
+
+        int[] ops = new int[m];
+        for (int i = 0; i < m; i++) {
+            ops[i] = sc.nextInt();
+        }
+
+        // 反向執行操作
+        for (int i = m - 1; i >= 0; i--) {
+            if (ops[i] == 0) {
+                matrix = rotateLeft(matrix); // 反旋轉
+            } else {
+                matrix = flip(matrix);       // 翻轉
+            }
+        }
+
+        // 輸出
+        System.out.println(matrix.size() + " " + matrix.get(0).size());
+        for (List<Integer> row : matrix) {
+            for (int j = 0; j < row.size(); j++) {
+                System.out.print(row.get(j));
+                if (j != row.size() - 1) System.out.print(" ");
+            }
+            System.out.println();
+        }
+        sc.close();
+    }
+
+    // 翻轉
+    static List<List<Integer>> flip(List<List<Integer>> mat) {
+        Collections.reverse(mat);
+        return mat;
+    }
+
+    // 反旋轉（向左旋轉）
+    static List<List<Integer>> rotateLeft(List<List<Integer>> mat) {
+        int r = mat.size(), c = mat.get(0).size();
+        List<List<Integer>> res = new ArrayList<>();
+        for (int i = 0; i < c; i++) {
+            List<Integer> row = new ArrayList<>();
+            for (int j = 0; j < r; j++) {
+                row.add(mat.get(j).get(c - 1 - i));
+            }
+            res.add(row);
+        }
+        return res;
+    }
+}

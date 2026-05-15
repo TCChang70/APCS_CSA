@@ -1,0 +1,42 @@
+﻿public class StringToIntegerAtoi {
+    public int myAtoi(String s) {
+        int i = 0, n = s.length(), sign = 1, result = 0;
+
+        // 1. 忽略前導空格
+        while (i < n && s.charAt(i) == ' ') {
+            i++;
+        }
+
+        // 2. 處理符號
+        if (i < n && (s.charAt(i) == '+' || s.charAt(i) == '-')) {
+            sign = s.charAt(i) == '-' ? -1 : 1;
+            i++;
+        }
+
+        // 3. 處理數字
+        while (i < n && Character.isDigit(s.charAt(i))) {
+            int digit = s.charAt(i) - '0';
+
+            // 4. 溢位檢查
+            if (result > (Integer.MAX_VALUE - digit) / 10) {
+                return sign == 1 ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            }
+
+            result = result * 10 + digit;
+            i++;
+        }
+
+        return result * sign;
+    }
+
+    public static void main(String[] args) {
+        StringToIntegerAtoi solution = new StringToIntegerAtoi();
+
+        System.out.println(solution.myAtoi("42"));            // 42
+        System.out.println(solution.myAtoi("   -042"));       // -42
+        System.out.println(solution.myAtoi("1337c0d3"));      // 1337
+        System.out.println(solution.myAtoi("0-1"));           // 0
+        System.out.println(solution.myAtoi("words and 987")); // 0
+        System.out.println(solution.myAtoi("21474836460"));   // 2147483647 (溢位)
+    }
+}

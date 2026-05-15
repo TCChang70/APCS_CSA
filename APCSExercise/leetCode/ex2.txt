@@ -1,0 +1,23 @@
+﻿import java.util.*;
+
+public class TwoSumSolution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>(); // 儲存數值 -> 索引
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i]; // 要找的補數
+            if (map.containsKey(complement)) {
+                return new int[] { map.get(complement), i }; // 找到了！
+            }
+            map.put(nums[i], i); // 將當前數值存入 map
+        }
+        throw new IllegalArgumentException("No solution found.");
+    }
+
+    public static void main(String[] args) {
+        TwoSumSolution solution = new TwoSumSolution();
+
+        System.out.println(Arrays.toString(solution.twoSum(new int[] {2, 7, 11, 15}, 9)));  // [0, 1]
+        System.out.println(Arrays.toString(solution.twoSum(new int[] {3, 2, 4}, 6)));      // [1, 2]
+        System.out.println(Arrays.toString(solution.twoSum(new int[] {3, 3}, 6)));         // [0, 1]
+    }
+}

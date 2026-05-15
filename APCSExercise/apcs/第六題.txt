@@ -1,0 +1,49 @@
+﻿import java.util.*;
+
+public class MaxSumAndDivisors {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(); // 群組數
+        int m = sc.nextInt(); // 每組個數
+
+        int[][] data = new int[n][m];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                data[i][j] = sc.nextInt();
+
+        int[] selected = new int[n];
+        int sum = 0;
+
+        for (int i = 0; i < n; i++) {
+            int max = 0;
+            for (int j = 0; j < m; j++) {
+                if (data[i][j] > max) {
+                    max = data[i][j];
+                }
+            }
+            selected[i] = max;
+            sum += max;
+        }
+
+        System.out.println(sum);
+
+        List<Integer> output = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (sum % selected[i] == 0) {
+                output.add(selected[i]);
+            }
+        }
+
+        if (output.isEmpty()) {
+            System.out.println("-1");
+        } else {
+            for (int i = 0; i < output.size(); i++) {
+                System.out.print(output.get(i));
+                if (i != output.size() - 1) System.out.print(" ");
+            }
+            System.out.println();
+        }
+
+        sc.close();
+    }
+}

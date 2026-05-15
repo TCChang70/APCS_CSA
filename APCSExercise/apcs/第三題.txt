@@ -1,0 +1,18 @@
+﻿import java.util.*;
+
+public class SecretDifference {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String number = sc.nextLine();
+
+        int A = 0, B = 0;
+        for (int i = 0; i < number.length(); i++) {
+            int digit = number.charAt(i) - '0';
+            if ((i + 1) % 2 == 1) A += digit; // 奇數位
+            else B += digit;                 // 偶數位
+        }
+
+        System.out.println(Math.abs(A - B));
+        sc.close();
+    }
+}

@@ -1,0 +1,30 @@
+﻿public class MaxAreaContainer {
+    public int maxArea(int[] height) {
+        int maxArea = 0;
+        int left = 0, right = height.length - 1;
+
+        while (left < right) {
+            int h = Math.min(height[left], height[right]);
+            int w = right - left;
+            maxArea = Math.max(maxArea, h * w);
+
+            // 移動較小高度的指針，尋找可能更大的面積
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return maxArea;
+    }
+
+    public static void main(String[] args) {
+        MaxAreaContainer solution = new MaxAreaContainer();
+
+        System.out.println(solution.maxArea(new int[]{1,8,6,2,5,4,8,3,7})); // 49
+        System.out.println(solution.maxArea(new int[]{1,1}));              // 1
+        System.out.println(solution.maxArea(new int[]{4,3,2,1,4}));        // 16
+        System.out.println(solution.maxArea(new int[]{1,2,1}));            // 2
+    }
+}

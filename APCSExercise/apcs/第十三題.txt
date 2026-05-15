@@ -1,0 +1,43 @@
+﻿import java.util.*;
+
+public class FamilyTree {
+    static List<List<Integer>> tree = new ArrayList<>();
+    static int maxDepth = 0;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+
+        for (int i = 0; i < n; i++) tree.add(new ArrayList<>());
+        boolean[] hasParent = new boolean[n];
+
+        for (int i = 0; i < n - 1; i++) {
+            int parent = sc.nextInt(), child = sc.nextInt();
+            tree.get(parent).add(child);
+            hasParent[child] = true;
+        }
+
+        int root = 0;
+        for (int i = 0; i < n; i++) {
+            if (!hasParent[i]) {
+                root = i;
+                break;
+            }
+        }
+
+        dfs(root, -1);
+        System.out.println(maxDepth);
+        sc.close();
+    }
+
+    static int dfs(int node, int parent) {
+        int depth = 0;
+        for (int child : tree.get(node)) {
+            if (child != parent) {
+                depth = Math.max(depth, dfs(child, node) + 1);
+            }
+        }
+        maxDepth = Math.max(maxDepth, depth);
+        return depth;
+    }
+}

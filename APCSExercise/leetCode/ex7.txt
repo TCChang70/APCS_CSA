@@ -1,0 +1,44 @@
+﻿public class MedianSortedArrays {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        // 確保 nums1 是較短的那個陣列
+        if (nums1.length > nums2.length) return findMedianSortedArrays(nums2, nums1);
+
+        int m = nums1.length, n = nums2.length;
+        int totalLeft = (m + n + 1) / 2; // 中位數左邊總共需要的數字數量
+        int left = 0, right = m;
+
+        while (left <= right) {
+            int i = (left + right) / 2; // nums1 中切的位置
+            int j = totalLeft - i;      // nums2 中切的位置
+
+            int nums1LeftMax  = (i == 0) ? Integer.MIN_VALUE : nums1[i - 1];
+            int nums1RightMin = (i == m) ? Integer.MAX_VALUE : nums1[i];
+            int nums2LeftMax  = (j == 0) ? Integer.MIN_VALUE : nums2[j - 1];
+            int nums2RightMin = (j == n) ? Integer.MAX_VALUE : nums2[j];
+
+            if (nums1LeftMax <= nums2RightMin && nums2LeftMax <= nums1RightMin) {
+                // 找到正確切點
+                if ((m + n) % 2 == 1) {
+                    return Math.max(nums1LeftMax, nums2LeftMax);
+                } else {
+                    return (Math.max(nums1LeftMax, nums2LeftMax) +
+                            Math.min(nums1RightMin, nums2RightMin)) / 2.0;
+                }
+            } else if (nums1LeftMax > nums2RightMin) {
+                right = i - 1; // 移動左邊
+            } else {
+                left = i + 1; // 移動右邊
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid input.");
+    }
+
+    public static void main(String[] args) {
+        MedianSortedArrays solution = new MedianSortedArrays();
+
+        System.out.println(solution.findMedianSortedArrays(new int[]{1, 3}, new int[]{2}));     // 2.0
+        System.out.println(solution.findMedianSortedArrays(new int[]{1, 2}, new int[]{3, 4}));  // 2.5
+        System.out.println(solution.findMedianSortedArrays(new int[]{0, 0}, new int[]{0, 0}));  // 0.0
+    }
+}
