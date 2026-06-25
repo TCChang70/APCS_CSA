@@ -43,6 +43,30 @@ public class WhileLoopPractice {
         }
         System.out.println("答案：" + num + "\n");
 
+        // ----- 練習題 3 (Medium)：數字反轉 -----
+        System.out.println("練習題 3：數字反轉");
+        int original = 1234;
+        int reversed = 0;
+        int temp = original;
+        while (temp > 0) {
+            int digit = temp % 10;
+            reversed = reversed * 10 + digit;
+            temp /= 10;
+        }
+        System.out.println(original + " 反轉後 = " + reversed + "\n");
+
+        // ----- 練習題 4 (Hard)：印出所有因數 -----
+        System.out.println("練習題 4：24 的所有因數");
+        int target = 24;
+        int divisor = 1;
+        while (divisor <= target) {
+            if (target % divisor == 0) {
+                System.out.print(divisor + " ");
+            }
+            divisor++;
+        }
+        System.out.println("\n");
+
         // ----- 現在試試看：1 到 100 奇數總和 -----
         System.out.println("現在試試看：1 到 100 奇數總和");
         int oddSum = 0;
