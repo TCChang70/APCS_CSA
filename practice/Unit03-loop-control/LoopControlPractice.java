@@ -52,6 +52,45 @@ public class LoopControlPractice {
         }
         System.out.println();
 
+        // ----- 練習題 3 (Easy)：同時被 3 和 5 整除 -----
+        System.out.println("練習題 3：1 到 50 同時被 3 和 5 整除的數");
+        for (int i = 1; i <= 50; i++) {
+            if (i % 3 == 0 && i % 5 == 0) {
+                System.out.print(i + " ");
+            }
+        }
+        System.out.println("\n");
+
+        // ----- 練習題 4 (Medium)：字串大寫字母計數 -----
+        System.out.println("練習題 4：計算大寫字母數量");
+        String str = "Hello World! Java123";
+        int upperCount = 0;
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                upperCount++;
+            }
+        }
+        System.out.println("大寫字母數量 = " + upperCount + "\n");
+
+        // ----- 練習題 5 (Hard)：質數總和 -----
+        System.out.println("練習題 5：1 到 100 的質數與總和");
+        int primeSum = 0;
+        for (int n = 2; n <= 100; n++) {
+            boolean isPrime = true;
+            for (int d = 2; d < n; d++) {
+                if (n % d == 0) {
+                    isPrime = false;
+                    break;
+                }
+            }
+            if (isPrime) {
+                System.out.print(n + " ");
+                primeSum += n;
+            }
+        }
+        System.out.println("\n質數總和 = " + primeSum + "\n");
+
         // ----- 現在試試看：計算 1 到 50 中質數的個數 -----
         System.out.println("現在試試看：1 到 50 中的質數");
         int primeCount = 0;
