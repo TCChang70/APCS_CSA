@@ -45,6 +45,29 @@ public class ForLoopPractice {
         }
         System.out.println();
 
+        // ----- 練習題 3 (Easy)：計算 1 到 N 的總和 -----
+        System.out.println("練習題 3：1 到 100 的總和");
+        int sum = 0;
+        for (int i = 1; i <= 100; i++) {
+            sum += i;
+        }
+        System.out.println("1 到 100 的總和 = " + sum + "\n");
+
+        // ----- 練習題 4 (Medium)：階乘計算 -----
+        System.out.println("練習題 4：10! 階乘計算");
+        int factorial = 1;
+        for (int i = 1; i <= 10; i++) {
+            factorial *= i;
+        }
+        System.out.println("10! = " + factorial + "\n");
+
+        // ----- 練習題 5 (Hard)：完全平方數 -----
+        System.out.println("練習題 5：100 以內的完全平方數");
+        for (int i = 1; i * i <= 100; i++) {
+            System.out.print((i * i) + " ");
+        }
+        System.out.println("\n");
+
         // ----- 現在試試看：能被 3 整除的數 -----
         System.out.println("現在試試看：1 到 100 中能被 3 整除的數");
         int count = 0;
