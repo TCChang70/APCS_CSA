@@ -8,3 +8,11 @@ for _ in range(n - 1):                    # 樹的定義：n 個點、恰好 n-1
 
 for i in range(1, n + 1):                 # 依序印出每個節點的鄰居，檢查讀入結果
     print(i, adj[i])
+
+print(adj)
+
+# 5
+# 1 2
+# 1 3
+# 2 4
+# 2 5
