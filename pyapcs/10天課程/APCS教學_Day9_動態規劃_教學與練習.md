@@ -261,9 +261,46 @@ print(best_overall)
 ```
 
 ### 測試資料
-
-輸入：`-2 1 -3 4 -1 2 1 -5 4`
+輸入：`-2 1 -3 4 -1 2 `
 輸出：`6`
+
+要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
+當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
+def maxSubArrayWithIndices(nums):
+    # 初始狀態
+    current_max = global_max = nums[0]
+    
+    # 追蹤索引的變數
+    start = 0         # 最終最大子陣列的起點
+    end = 0           # 最終最大子陣列的終點
+    temp_start = 0    # 目前正在計算的子陣列起點
+
+    for i in range(1, len(nums)):
+        x = nums[i]
+        
+        # 決定要加入前面的序列，還是自己重新開始
+        if x > current_max + x:
+            current_max = x
+            temp_start = i    # 自己重新開始，將暫時起點設為當前位置
+        else:
+            current_max = current_max + x
+        
+        # 當發現更大的總和時，更新全域最大值以及真正的起點、終點
+        if current_max > global_max:
+            global_max = current_max
+            start = temp_start  # 紀錄真正的起點
+            end = i             # 當前位置就是終點
+
+    return global_max, start, end
+
+# 測試前面用過的範例 [2, -3, 4, -1, 2]
+nums = [2, -3, 4, -1, 2]
+max_sum, start_idx, end_idx = maxSubArrayWithIndices(nums)
+
+print(f"最大總和: {max_sum}")
+print(f"起始索引: {start_idx}, 結束索引: {end_idx}")
+print(f"最大子陣列: {nums[start_idx:end_idx+1]}")
+
 
 ### 表格追蹤
 
