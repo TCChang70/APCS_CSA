@@ -272,8 +272,54 @@ print(best_overall)
 
 > 最大子陣列 = [4, -1, 2, 1]，和 = 6
 
-### 要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
-### 當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
+#### 我們用一個簡單的陣列範例：[2, -3, 4, -1, 2]，來一步步看 Kadane 演算法 的執行過程。
+這個演算法的核心是維持兩個變數：
+
+* 目前最大和 (current_max)：一定要包含當前這個數字的連續子陣列最大和。
+* 全域最大和 (global_max)：目前為止看過的所有組合中，總和最大的。
+```python
+def maxSubArray(nums):
+    current_max = global_max = nums[0]
+    for x in nums[1:]:
+        current_max = max(x, current_max + x)
+        global_max = max(global_max, current_max)
+    return global_max
+
+```
+## 依序檢查每個數字的流程
+
+* 初始狀態（看第一個數字 2）
+* current_max = 2
+   * global_max = 2
+* 步驟 1：看第二個數字 -3
+* 決定 current_max：比較「自己獨立開頭 -3」或「跟前面加在一起 2 + (-3) = -1」。
+   * 較大者為 -1，所以 current_max 更新為 -1。
+   * 決定 global_max：比較之前的 global_max (2) 與現在的 current_max (-1)。
+   * 較大者為 2，所以 global_max 保持 2。
+   * 步驟 2：看第三個數字 4
+* 決定 current_max：比較「自己獨立開頭 4」或「跟前面加在一起 -1 + 4 = 3」。
+   * 較大者為 4（這代表拋棄前面的負累計，重新開始），current_max 更新為 4。
+   * 決定 global_max：比較之前的 global_max (2) 與現在的 current_max (4)。
+   * 較大者為 4，所以 global_max 更新為 4。
+   * 步驟 3：看第四個數字 -1
+* 決定 current_max：比較「自己獨立開頭 -1」或「跟前面加在一起 4 + (-1) = 3」。
+   * 較大者為 3，所以 current_max 更新為 3。
+   * 決定 global_max：比較之前的 global_max (4) 與現在的 current_max (3)。
+   * 較大者為 4，所以 global_max 保持 4。
+   * 步驟 4：看第五個數字 2
+* 決定 current_max：比較「自己獨立開頭 2」或「跟前面加在一起 3 + 2 = 5」。
+   * 較大者為 5，所以 current_max 更新為 5。
+   * 決定 global_max：比較之前的 global_max (4) 與現在的 current_max (5)。
+   * 較大者為 5，所以 global_max 更新為 5。
+   
+------------------------------
+## 最終結果
+陣列走訪完畢，此時 global_max 的數值為 5。
+這代表最大連續子陣列的總和是 5，對應的子陣列就是後面的 [4, -1, 2]。
+
+
+要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
+當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
 ```python
 def maxSubArrayWithIndices(nums):
     # 初始狀態
