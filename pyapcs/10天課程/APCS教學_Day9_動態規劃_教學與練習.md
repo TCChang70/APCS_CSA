@@ -272,8 +272,9 @@ print(best_overall)
 
 > 最大子陣列 = [4, -1, 2, 1]，和 = 6
 
-要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
-當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
+### 要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
+### 當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
+```python
 def maxSubArrayWithIndices(nums):
     # 初始狀態
     current_max = global_max = nums[0]
@@ -308,7 +309,7 @@ max_sum, start_idx, end_idx = maxSubArrayWithIndices(nums)
 print(f"最大總和: {max_sum}")
 print(f"起始索引: {start_idx}, 結束索引: {end_idx}")
 print(f"最大子陣列: {nums[start_idx:end_idx+1]}")
-
+```
 ---
 
 ## 模型四：0/1 背包
