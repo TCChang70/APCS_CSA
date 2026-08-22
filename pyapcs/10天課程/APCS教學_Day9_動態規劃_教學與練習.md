@@ -41,16 +41,18 @@
 
 ```python
 # 遞迴版：重複子問題爆炸，n=40 要好幾秒
+# 問題：fib(5) 會展開為 fib(4)+fib(3)，fib(4) 會再展開 fib(3)+fib(2)...同一個子問題被計算數十次
 def fib_recur(n):
     if n <= 1:
         return n
     return fib_recur(n - 1) + fib_recur(n - 2)
 
 # DP 陣列版：從小算到大，O(N) 一秒
+# 重點：算過一次就存起來，子問題絕不重複計算
 def fib_dp(n):
     f = [0, 1]
     for i in range(2, n + 1):
-        f.append(f[i - 1] + f[i - 2])
+        f.append(f[i - 1] + f[i - 2])  # 用已存的小答案拼出大答案
     return f[n]
 
 # 測試
@@ -261,8 +263,10 @@ print(best_overall)
 ```
 
 ### 測試資料
+
 輸入：`-2 1 -3 4 -1 2 1 -5 4`
 輸出：`6`
+
 ### 表格追蹤
 
 | x | -2 | 1 | -3 | 4 | -1 | 2 | 1 | -5 | 4 |
@@ -395,16 +399,18 @@ for w in range(weights[i], capacity + 1):
 
 ### 作法一：O(N²) DP
 
+> **容易簿清的寫法**，LIS 入門必學。外層 `i` 指「當前考慮到第 i 個元素」，內層 `j` 找「前面所有可以接就 i 的 j」。
+
 ```python
 nums = list(map(int, input().split()))
 n = len(nums)
 # dp[i] = 以 nums[i] 結尾的最長遞增子序列長度
-dp = [1] * n
+dp = [1] * n            # 每個元素至少可以單元素自成一列，長度至少為 1
 for i in range(n):
-    for j in range(i):
-        if nums[j] < nums[i]:
-            dp[i] = max(dp[i], dp[j] + 1)
-print(max(dp))
+    for j in range(i):  # 查看所有在 i 前面的 j
+        if nums[j] < nums[i]:               # j 可以接到 i 前面
+            dp[i] = max(dp[i], dp[j] + 1)  # 延伸 j 結尾的 LIS
+print(max(dp))          # 答案是 dp 裡的最大値（不一定是 dp[n-1]）
 ```
 
 ### 測試資料
@@ -422,18 +428,21 @@ print(max(dp))
 
 ### 作法二：O(N log N) 二分搜
 
+> **思路**：用 `tails` 陣列記錄「長度為 k+1 的 LIS 中、結尾元素最小可能是多少」。
+> 這讓我們小走 `tails`，就能當來延伸的住點。
+
 ```python
 from bisect import bisect_left
 
 nums = list(map(int, input().split()))
-tails = []                          # tails[k] = 長度 k+1 的遞增子序列最小結尾值
+tails = []                          # tails[k] = 長度 k+1 的遞增子序列最小結尾値
 for x in nums:
-    pos = bisect_left(tails, x)     # 二分搜找插入位置
+    pos = bisect_left(tails, x)     # 二分搜找 x 應插入的位置
     if pos == len(tails):
-        tails.append(x)             # 可延伸
+        tails.append(x)             # x 比目前所有結尾大 → 可延伸 LIS
     else:
-        tails[pos] = x              # 替換（用更小的值）
-print(len(tails))
+        tails[pos] = x              # 替換：用更小的 x 取代，为未來延伸保留更大彈性
+print(len(tails))                   # tails 長度 = LIS 長度
 ```
 
 ### 表格追蹤（nums=[10,9,2,5,3,7,101,18]）
@@ -453,23 +462,25 @@ print(len(tails))
 
 ### 完整程式（空間壓縮版）
 
+> **為何被壓縮？** 原始 2D dp 表每個格子 `dp[i][j]` 只依賴上方（`dp[i-1][j]`）、左方（`dp[i][j-1]`）、對角（`dp[i-1][j-1]`）三格，因此可壓成一維。不過需用 `prev_diag` 對角小案來暫存左上角的舊値。
+
 ```python
 a = input()
 b = input()
 if len(a) < len(b):
-    short_s, long_s = a, b
+    short_s, long_s = a, b      # 長的当外層迴圈，短的當列（節省空間）
 else:
     short_s, long_s = b, a
 # dp[j] = 目前列中 A[:i] 與 B[:j] 的 LCS 長度
 dp = [0] * (len(short_s) + 1)
 for ch in long_s:
-    prev_diag = 0
+    prev_diag = 0               # 相當於 2D 表的 dp[i-1][j-1]
     for j in range(1, len(short_s) + 1):
-        old = dp[j]
+        old = dp[j]             # 備份本格舊値，下一列要當 prev_diag 用
         if ch == short_s[j - 1]:
-            dp[j] = prev_diag + 1     # 對角線 +1
+            dp[j] = prev_diag + 1     # 匹配：從左上角加 1
         else:
-            dp[j] = max(dp[j], dp[j - 1])
+            dp[j] = max(dp[j], dp[j - 1])   # 不匹配：取上方或左方較大者
         prev_diag = old
 print(dp[-1])
 ```
@@ -681,7 +692,7 @@ for cur in range(1, amount + 1):
 print(-1 if dp[amount] == inf else dp[amount])
 ```
 
-**測試資料**：輸入 `2 5 7` 和 `11`，輸出 `3`（7+2+2=11，共 3 個硬幣；若改 amount=10：5+5=10，共 2 個）
+**測試資料**：輸入 `2 5 7` 和 `11`，輸出 `3`（7+2+2=11，共 3 個硬幣）
 
 </details>
 
