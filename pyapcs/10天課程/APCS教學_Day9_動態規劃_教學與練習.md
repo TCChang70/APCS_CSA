@@ -41,19 +41,17 @@
 
 ```python
 # 遞迴版：重複子問題爆炸，n=40 要好幾秒
-# 問題：fib(5) 會展開為 fib(4)+fib(3)，fib(4) 會再展開 fib(3)+fib(2)...同一個子問題被計算數十次
 def fib_recur(n):
-    if n <= 1:
-        return n
-    return fib_recur(n - 1) + fib_recur(n - 2)
+    if n <= 1:                    # 基底條件：fib(0)=0, fib(1)=1
+        return n                 # 直接回傳，不再展開
+    return fib_recur(n - 1) + fib_recur(n - 2)  # 重複子問題：fib(3) 會被算很多次
 
 # DP 陣列版：從小算到大，O(N) 一秒
-# 重點：算過一次就存起來，子問題絕不重複計算
 def fib_dp(n):
-    f = [0, 1]
-    for i in range(2, n + 1):
-        f.append(f[i - 1] + f[i - 2])  # 用已存的小答案拼出大答案
-    return f[n]
+    f = [0, 1]                   # 初始值：f[0]=0, f[1]=1
+    for i in range(2, n + 1):    # 從第 2 項開始往上算
+        f.append(f[i - 1] + f[i - 2])  # 第 i 項 = 前兩項相加（已算好，直接用）
+    return f[n]                  # 答案存在 f[n] 裡
 
 # 測試
 print(fib_dp(10))   # 55
@@ -103,15 +101,13 @@ print(fib_dp(40))   # 102334155
 ### 完整程式
 
 ```python
-n = int(input())
-# dp[i] = 走到第 i 階的方法數
-dp = [0] * (n + 1)
-dp[0] = 1                    # 初始：地面算 1 種
-dp[1] = 1                    # 初始：第 1 階算 1 種
-for i in range(2, n + 1):
-    # 轉移：最後一步走 1 階（從 i-1 來）+ 走 2 階（從 i-2 來）
-    dp[i] = dp[i - 1] + dp[i - 2]
-print(dp[n])
+n = int(input())                        # 讀入 n：目標階數
+dp = [0] * (n + 1)                      # 建立長度 n+1 的陣列，dp[i] = 走到第 i 階的方法數
+dp[0] = 1                               # 初始值：站在地面（第0階）算 1 種走法
+dp[1] = 1                               # 初始值：走到第1階只有1種（走1步）
+for i in range(2, n + 1):               # 從第2階開始，依序往上算每個 dp[i]
+    dp[i] = dp[i - 1] + dp[i - 2]      # 轉移：最後一步走1階(i-1) + 走2階(i-2)的方法數相加
+print(dp[n])                            # 答案：走到第 n 階的方法數
 ```
 
 ### 測試資料
@@ -134,13 +130,13 @@ print(dp[n])
 ### 進階：一次走 1~k 階
 
 ```python
-n, k = map(int, input().split())
-dp = [0] * (n + 1)
-dp[0] = 1                    # dp[0]=1 確保從原點出發的路徑都被計入
-for i in range(1, n + 1):
-    for j in range(1, min(i, k) + 1):
-        dp[i] += dp[i - j]
-print(dp[n])
+n, k = map(int, input().split())        # 讀入 n（目標階數）、k（每次最多走幾步）
+dp = [0] * (n + 1)                      # dp[i] = 走到第 i 階的方法數
+dp[0] = 1                               # 初始值：站在地面算 1 種（哨兵值，確保轉移正確）
+for i in range(1, n + 1):               # 外層：依序計算 dp[1] 到 dp[n]
+    for j in range(1, min(i, k) + 1):   # 內層：枚舉「最後一步走了 j 階」
+        dp[i] += dp[i - j]              # 從 (i-j) 階走 j 步到 i，把所有可能累加
+print(dp[n])                            # 答案：走到第 n 階的總方法數
 ```
 
 ### 測試資料
@@ -174,17 +170,17 @@ print(dp[n])
 ### 完整程式
 
 ```python
-coins = list(map(int, input().split()))
-amount = int(input())
-# dp[x] = 湊出金額 x 所需最少硬幣數
-inf = 10 ** 9
-dp = [inf] * (amount + 1)
-dp[0] = 0                       # 金額 0 需要 0 個硬幣
-for cur in range(1, amount + 1):
-    for c in coins:
-        if cur >= c:
+coins = list(map(int, input().split()))  # 讀入硬幣面額，例如 [1,2,5]
+amount = int(input())                    # 讀入目標金額，例如 6
+inf = 10 ** 9                            # 用一個超大值代表「不可達」
+dp = [inf] * (amount + 1)                # dp[x] = 湊出金額 x 的最少硬幣數，初始全部不可達
+dp[0] = 0                               # 初始值：金額 0 需要 0 個硬幣（唯一確定的起點）
+for cur in range(1, amount + 1):         # 外層：依序計算 dp[1] 到 dp[amount]
+    for c in coins:                      # 內層：嘗試每一種硬幣面額
+        if cur >= c:                     # 安全檢查：硬幣面額不能超過目前金額
+            # 核心轉移：「不選這枚」vs「選這枚（從 dp[cur-c] 跳過來+1）」取最小
             dp[cur] = min(dp[cur], dp[cur - c] + 1)
-print(-1 if dp[amount] == inf else dp[amount])
+print(-1 if dp[amount] == inf else dp[amount])  # 若仍為 inf 表示無法湊出，回傳 -1
 ```
 
 ### 測試資料
@@ -207,15 +203,14 @@ print(-1 if dp[amount] == inf else dp[amount])
 給定硬幣面額和目標金額，求湊出目標金額的**組合數**（順序不同算同一種）。
 
 ```python
-coins = list(map(int, input().split()))
-amount = int(input())
-# dp[x] = 湊出金額 x 的方法數
-dp = [0] * (amount + 1)
-dp[0] = 1                       # 金額 0 有 1 種方法
-for c in coins:                 # 先枚舉硬幣（組合）
-    for x in range(c, amount + 1):
-        dp[x] += dp[x - c]
-print(dp[amount])
+coins = list(map(int, input().split()))  # 讀入硬幣面額，例如 [1,2,5]
+amount = int(input())                    # 讀入目標金額，例如 5
+dp = [0] * (amount + 1)                 # dp[x] = 湊出金額 x 的組合數
+dp[0] = 1                               # 初始值：金額 0 有 1 種方法（什麼都不選）
+for c in coins:                         # 先枚舉硬幣種類（確保 1+2 和 2+1 算同一種）
+    for x in range(c, amount + 1):      # 從面額 c 開始正序枚舉金額
+        dp[x] += dp[x - c]             # 轉移：選了這枚硬幣後，累加「湊出 x-c 的方法數」
+print(dp[amount])                       # 答案：湊出 amount 的總組合數
 ```
 
 ### 測試資料
@@ -251,15 +246,14 @@ print(dp[amount])
 ### 完整程式
 
 ```python
-nums = list(map(int, input().split()))
-# best_end_here = 以目前元素結尾的最大和
-# best_overall = 全局最大和
-best_end_here = nums[0]
-best_overall = nums[0]
-for x in nums[1:]:
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [-2,1,-3,4,-1,2,1,-5,4]
+best_end_here = nums[0]                # 以目前元素結尾的最大和（從第一個元素開始）
+best_overall = nums[0]                 # 全局目前看到的最大值
+for x in nums[1:]:                     # 從第 2 個元素開始逐一處理
+    # 核心轉移：「自己重開」vs「接在前面後面」取較大
     best_end_here = max(x, best_end_here + x)
-    best_overall = max(best_overall, best_end_here)
-print(best_overall)
+    best_overall = max(best_overall, best_end_here)  # 每步更新全局最大值
+print(best_overall)                    # 答案：整個陣列的最大連續子陣列和
 ```
 
 ### 測試資料
@@ -303,24 +297,24 @@ print(best_overall)
 
 ```python
 def maxSubArray_with_indices(nums):
-    current_max = global_max = nums[0]
-    temp_start = 0      # 目前子陣列的暫定起點
-    start = end = 0     # 最終最大子陣列的起點與終點
+    current_max = global_max = nums[0]  # current_max=以目前元素結尾的最大和；global_max=全局最大
+    temp_start = 0                     # 目前正在延伸的子陣列的暫定起點
+    start = end = 0                    # 最終答案的起始與結束索引
 
-    for i in range(1, len(nums)):
+    for i in range(1, len(nums)):      # 從第 2 個元素開始
         x = nums[i]
-        if x > current_max + x:
-            current_max = x
-            temp_start = i          # 重新開始，更新暫定起點
-        else:
-            current_max += x
+        if x > current_max + x:        # 情況1：x 本身比「接在後面」更大
+            current_max = x            # → 前面的累積是負擔，從 x 重新開始
+            temp_start = i             # 更新暫定起點為目前位置
+        else:                          # 情況2：接在後面更划算
+            current_max += x           # → 繼續延伸目前的子陣列
 
-        if current_max > global_max:
-            global_max = current_max
-            start = temp_start      # 記錄真實起點
-            end = i                 # 當前位置為終點
+        if current_max > global_max:   # 若目前子陣列破了歷史紀錄
+            global_max = current_max   # 更新全局最大值
+            start = temp_start         # 把暫定起點「確認」為正式起點
+            end = i                    # 結束索引更新為目前位置
 
-    return global_max, start, end
+    return global_max, start, end      # 回傳 (最大和, 起始索引, 結束索引)
 
 # 測試
 nums = [2, -3, 4, -1, 2]
@@ -347,16 +341,16 @@ print(f"最大子陣列: {nums[s:e+1]}")     # [4, -1, 2]
 ### 完整程式
 
 ```python
-weights = list(map(int, input().split()))
-values = list(map(int, input().split()))
-capacity = int(input())
-# dp[w] = 容量為 w 時的最大價值
-dp = [0] * (capacity + 1)
-for i in range(len(weights)):
-    # ⚠️ 必須倒序！避免同一物品被重複選取
+weights = list(map(int, input().split()))  # 讀入每個物品的重量，例如 [2,3]
+values = list(map(int, input().split()))   # 讀入每個物品的價值，例如 [3,4]
+capacity = int(input())                    # 讀入背包容量，例如 5
+dp = [0] * (capacity + 1)                 # dp[w] = 容量為 w 時的最大價值，初始全 0
+for i in range(len(weights)):              # 外層：一個一個物品考慮是否放入
+    # ⚠️ 必須倒序！從 capacity 往下到 weights[i]，避免同一物品被重複選取
     for w in range(capacity, weights[i] - 1, -1):
+        # 核心轉移：「不選物品 i」vs「選物品 i（從 dp[w-weights[i]] 跳過來加 values[i]」
         dp[w] = max(dp[w], dp[w - weights[i]] + values[i])
-print(dp[capacity])
+print(dp[capacity])                        # 答案：容量用滿時的最大價值
 ```
 
 ### 測試資料
@@ -385,9 +379,10 @@ print(dp[capacity])
 ### 無限背包（每個物品可選無限次）
 
 ```python
-# 唯一差別：正序更新
-for w in range(weights[i], capacity + 1):
-    dp[w] = max(dp[w], dp[w - weights[i]] + values[i])
+# 無限背包：唯一差別在迴圈改為正序更新
+# 正序時，dp[w] 會用到本輪已更新的 dp[w-weights[i]]，等於物品可被重複選取
+for w in range(weights[i], capacity + 1):                     # 正序：由小到大
+    dp[w] = max(dp[w], dp[w - weights[i]] + values[i])       # 轉移式與 0/1 背包相同
 ```
 
 ---
@@ -402,15 +397,14 @@ for w in range(weights[i], capacity + 1):
 > **容易簿清的寫法**，LIS 入門必學。外層 `i` 指「當前考慮到第 i 個元素」，內層 `j` 找「前面所有可以接就 i 的 j」。
 
 ```python
-nums = list(map(int, input().split()))
-n = len(nums)
-# dp[i] = 以 nums[i] 結尾的最長遞增子序列長度
-dp = [1] * n            # 每個元素至少可以單元素自成一列，長度至少為 1
-for i in range(n):
-    for j in range(i):  # 查看所有在 i 前面的 j
-        if nums[j] < nums[i]:               # j 可以接到 i 前面
-            dp[i] = max(dp[i], dp[j] + 1)  # 延伸 j 結尾的 LIS
-print(max(dp))          # 答案是 dp 裡的最大値（不一定是 dp[n-1]）
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [10,9,2,5,3,7,101,18]
+n = len(nums)                          # 陣列長度
+dp = [1] * n                           # dp[i] = 以 nums[i] 結尾的 LIS 長度，初始每個元素至少長度 1
+for i in range(n):                     # 外層：以第 i 個元素作為子序列的結尾
+    for j in range(i):                 # 內層：回頭看 i 之前的所有元素 j
+        if nums[j] < nums[i]:         # 只有 nums[j] < nums[i] 才能接在後面（嚴格遞增）
+            dp[i] = max(dp[i], dp[j] + 1)  # 從所有合法 j 中，取最長的延伸
+print(max(dp))                        # 答案：dp 裡的最大值（LIS 可能以任何位置結尾）
 ```
 
 ### 測試資料
@@ -432,17 +426,17 @@ print(max(dp))          # 答案是 dp 裡的最大値（不一定是 dp[n-1]）
 > 這讓我們小走 `tails`，就能當來延伸的住點。
 
 ```python
-from bisect import bisect_left
+from bisect import bisect_left          # bisect_left 用二分搜找插入位置
 
-nums = list(map(int, input().split()))
-tails = []                          # tails[k] = 長度 k+1 的遞增子序列最小結尾値
-for x in nums:
-    pos = bisect_left(tails, x)     # 二分搜找 x 應插入的位置
-    if pos == len(tails):
-        tails.append(x)             # x 比目前所有結尾大 → 可延伸 LIS
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [10,9,2,5,3,7,101,18]
+tails = []                             # tails[k] = 長度 k+1 的遞增子序列的最小結尾值
+for x in nums:                         # 依序處理每個數字
+    pos = bisect_left(tails, x)        # 二分搜：找 tails 中第一個 >= x 的位置
+    if pos == len(tails):              # x 比所有 tails 元素都大
+        tails.append(x)                # → 可以延伸，LIS 長度 +1
     else:
-        tails[pos] = x              # 替換：用更小的 x 取代，为未來延伸保留更大彈性
-print(len(tails))                   # tails 長度 = LIS 長度
+        tails[pos] = x                 # → 替換：用更小的 x 取代，為未來延伸保留更大彈性
+print(len(tails))                      # 答案：tails 長度 = LIS 長度
 ```
 
 ### 表格追蹤（nums=[10,9,2,5,3,7,101,18]）
@@ -465,24 +459,23 @@ print(len(tails))                   # tails 長度 = LIS 長度
 > **為何被壓縮？** 原始 2D dp 表每個格子 `dp[i][j]` 只依賴上方（`dp[i-1][j]`）、左方（`dp[i][j-1]`）、對角（`dp[i-1][j-1]`）三格，因此可壓成一維。不過需用 `prev_diag` 對角小案來暫存左上角的舊値。
 
 ```python
-a = input()
-b = input()
-if len(a) < len(b):
-    short_s, long_s = a, b      # 長的当外層迴圈，短的當列（節省空間）
+a = input()                            # 讀入第一個字串，例如 "ABCDAB"
+b = input()                            # 讀入第二個字串，例如 "BACB"
+if len(a) < len(b):                    # 確保 short_s 是較短的字串，減少空間使用
+    short_s, long_s = a, b             # 長的當外層迴圈，短的當內層（節省空間）
 else:
     short_s, long_s = b, a
-# dp[j] = 目前列中 A[:i] 與 B[:j] 的 LCS 長度
-dp = [0] * (len(short_s) + 1)
-for ch in long_s:
-    prev_diag = 0               # 相當於 2D 表的 dp[i-1][j-1]
-    for j in range(1, len(short_s) + 1):
-        old = dp[j]             # 備份本格舊値，下一列要當 prev_diag 用
-        if ch == short_s[j - 1]:
-            dp[j] = prev_diag + 1     # 匹配：從左上角加 1
-        else:
-            dp[j] = max(dp[j], dp[j - 1])   # 不匹配：取上方或左方較大者
-        prev_diag = old
-print(dp[-1])
+dp = [0] * (len(short_s) + 1)          # dp[j] = 目前處理到的列中，short_s[:j] 的 LCS 長度
+for ch in long_s:                      # 外層：掃描長字串的每個字元（對應 2D 表的列）
+    prev_diag = 0                      # 每列開始時，左上角 dp[i-1][j-1] 的值為 0
+    for j in range(1, len(short_s) + 1):  # 內層：掃描短字串的每個字元（對應 2D 表的行）
+        old = dp[j]                    # 關鍵：在覆蓋 dp[j] 之前先備份（下一輪要當 prev_diag 用）
+        if ch == short_s[j - 1]:       # 兩字元相同 → 匹配
+            dp[j] = prev_diag + 1      # 從左上角 dp[i-1][j-1] 的值 +1
+        else:                          # 兩字元不同 → 不匹配
+            dp[j] = max(dp[j], dp[j - 1])  # 取「上方」或「左方」的較大值
+        prev_diag = old                # 把備份的舊值傳給下一輪作為左上角
+print(dp[-1])                          # 答案：dp 最後一個元素 = 完整 LCS 長度
 ```
 
 ### 測試資料
@@ -518,25 +511,25 @@ BACB
 ### 完整程式（空間壓縮版）
 
 ```python
-word1 = input()
-word2 = input()
-n, m = len(word1), len(word2)
-if n < m:
-    word1, word2 = word2, word1
+word1 = input()                        # 讀入第一個字串，例如 "horse"
+word2 = input()                        # 讀入第二個字串，例如 "ros"
+n, m = len(word1), len(word2)          # 兩個字串的長度
+if n < m:                              # 確保 word1 是較長的，節省空間
+    word1, word2 = word2, word1        # 交換
     n, m = m, n
-# dp[j] = word1[:i] 轉為 word2[:j] 的最少步數
-dp = list(range(m + 1))
-for i in range(1, n + 1):
-    prev_diag = dp[0]
-    dp[0] = i
-    for j in range(1, m + 1):
-        temp = dp[j]
-        if word1[i - 1] == word2[j - 1]:
-            dp[j] = prev_diag              # 無需操作
-        else:
+dp = list(range(m + 1))               # 初始值：dp[j] = word1[:0] 轉為 word2[:j] 需要 j 次插入
+for i in range(1, n + 1):             # 外層：處理 word1 的第 i 個字元
+    prev_diag = dp[0]                 # 暫存左上角值（dp[i-1][j-1]）
+    dp[0] = i                        # word1[:i] 轉為空字串需要 i 次刪除
+    for j in range(1, m + 1):         # 內層：處理 word2 的第 j 個字元
+        temp = dp[j]                  # 備份 dp[j] 的舊值（下輪要當 prev_diag）
+        if word1[i - 1] == word2[j - 1]:  # 兩字元相同 → 無需操作
+            dp[j] = prev_diag         # 直接繼承左上角的值
+        else:                         # 兩字元不同 → 三種操作取最小
+            # dp[j]=刪除, dp[j-1]=插入, prev_diag=替換
             dp[j] = 1 + min(dp[j], dp[j - 1], prev_diag)
-        prev_diag = temp
-print(dp[m])
+        prev_diag = temp              # 把備份傳給下一輪
+print(dp[m])                          # 答案：word1[:n] 轉為 word2[:m] 的最少步數
 ```
 
 ### 測試資料
@@ -625,14 +618,14 @@ ros
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-n = int(input())
-dp = [0] * (n + 1)
-dp[0] = 1                    # 地面 1 種
-dp[1] = 1                    # 第 1 階 1 種
-dp[2] = 2                    # 第 2 階：1+1、2
-for i in range(3, n + 1):
-    dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3]
-print(dp[n])
+n = int(input())                        # 讀入 n：目標階數
+dp = [0] * (n + 1)                     # dp[i] = 走到第 i 階的方法數
+dp[0] = 1                               # 初始：地面算 1 種
+dp[1] = 1                               # 初始：第 1 階算 1 種
+dp[2] = 2                               # 初始：第 2 階有 2 種（1+1、2）
+for i in range(3, n + 1):               # 從第 3 階開始，考慮走 1、2、3 階
+    dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3]  # 轉移：走1階 + 走2階 + 走3階的方法數相加
+print(dp[n])                            # 答案：走到第 n 階的總方法數
 ```
 
 **測試資料**：輸入 `5`，輸出 `13`
@@ -652,17 +645,16 @@ print(dp[n])
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-n = int(input())
-a = list(map(int, input().split()))
-# dp[i] = 前 i+1 個元素中，符合規則的最大和
-dp = [0] * n
-dp[0] = a[0]
+n = int(input())                        # 讀入元素個數
+a = list(map(int, input().split()))     # 讀入陣列，例如 [3,2,7,9]
+dp = [0] * n                            # dp[i] = 前 i+1 個元素中，符合規則的最大和
+dp[0] = a[0]                            # 初始：只有一個元素，最大和就是它自己
 if n >= 2:
-    dp[1] = max(a[0], a[1])
-for i in range(2, n):
-    # 不取 a[i] → dp[i-1]；取 a[i] → dp[i-2] + a[i]
+    dp[1] = max(a[0], a[1])            # 兩個元素不能相鄰取 → 只能二選一
+for i in range(2, n):                   # 從第 3 個元素開始推
+    # 不取 a[i] → 答案維持 dp[i-1]；取 a[i] → 因不能相鄰，接 dp[i-2] 再加 a[i]
     dp[i] = max(dp[i - 1], dp[i - 2] + a[i])
-print(dp[n - 1])
+print(dp[n - 1])                        # 答案：考慮完全部元素的最佳解
 ```
 
 **測試資料**：輸入 `3 2 7 9`，輸出 `12`
@@ -680,16 +672,16 @@ print(dp[n - 1])
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-coins = list(map(int, input().split()))
-amount = int(input())
-inf = 10 ** 9
-dp = [inf] * (amount + 1)
-dp[0] = 0
-for cur in range(1, amount + 1):
-    for c in coins:
-        if cur >= c:
-            dp[cur] = min(dp[cur], dp[cur - c] + 1)
-print(-1 if dp[amount] == inf else dp[amount])
+coins = list(map(int, input().split()))  # 讀入硬幣面額，例如 [2,5,7]
+amount = int(input())                    # 讀入目標金額，例如 11
+inf = 10 ** 9                            # 代表「不可達」的超大值
+dp = [inf] * (amount + 1)               # dp[x] = 湊出 x 的最少硬幣數，初始全部不可達
+dp[0] = 0                               # 金額 0 需要 0 個硬幣
+for cur in range(1, amount + 1):         # 依序計算 dp[1] 到 dp[amount]
+    for c in coins:                      # 嘗試每一種硬幣
+        if cur >= c:                     # 硬幣面額不能超過目前金額
+            dp[cur] = min(dp[cur], dp[cur - c] + 1)  # 取最小硬幣數
+print(-1 if dp[amount] == inf else dp[amount])  # 無法湊出回傳 -1
 ```
 
 **測試資料**：輸入 `2 5 7` 和 `11`，輸出 `3`（7+2+2=11，共 3 個硬幣）
@@ -706,13 +698,13 @@ print(-1 if dp[amount] == inf else dp[amount])
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-nums = list(map(int, input().split()))
-best_end_here = nums[0]
-best_overall = nums[0]
-for x in nums[1:]:
-    best_end_here = max(x, best_end_here + x)
-    best_overall = max(best_overall, best_end_here)
-print(best_overall)
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [-2,1,-3,4,-1,2,1,-5,4]
+best_end_here = nums[0]                # 以目前元素結尾的最大和
+best_overall = nums[0]                 # 全局最大和
+for x in nums[1:]:                     # 從第 2 個元素開始
+    best_end_here = max(x, best_end_here + x)  # 「自己重開」vs「接在後面」取較大
+    best_overall = max(best_overall, best_end_here)  # 更新全局最大值
+print(best_overall)                    # 答案：最大連續子陣列和
 ```
 
 **測試資料**：輸入 `-2 1 -3 4 -1 2 1 -5 4`，輸出 `6`
@@ -729,14 +721,14 @@ print(best_overall)
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-weights = list(map(int, input().split()))
-values = list(map(int, input().split()))
-capacity = int(input())
-dp = [0] * (capacity + 1)
-for i in range(len(weights)):
-    for w in range(capacity, weights[i] - 1, -1):
-        dp[w] = max(dp[w], dp[w - weights[i]] + values[i])
-print(dp[capacity])
+weights = list(map(int, input().split()))  # 讀入物品重量
+values = list(map(int, input().split()))   # 讀入物品價值
+capacity = int(input())                    # 讀入背包容量
+dp = [0] * (capacity + 1)                 # dp[w] = 容量 w 時的最大價值
+for i in range(len(weights)):              # 外層：逐個物品
+    for w in range(capacity, weights[i] - 1, -1):  # ⚠️ 倒序！避免同一物品被重複選取
+        dp[w] = max(dp[w], dp[w - weights[i]] + values[i])  # 不選 vs 選，取較大
+print(dp[capacity])                        # 答案：容量用滿時的最大價值
 ```
 
 **測試資料**：輸入 `2 3 4 5`、`3 4 5 6` 和 `5`，輸出 `7`
@@ -753,17 +745,17 @@ print(dp[capacity])
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-from bisect import bisect_left
+from bisect import bisect_left          # 二分搜找插入位置
 
-nums = list(map(int, input().split()))
-tails = []
-for x in nums:
-    pos = bisect_left(tails, x)
-    if pos == len(tails):
-        tails.append(x)
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [10,9,2,5,3,7,101,18]
+tails = []                             # tails[k] = 長度 k+1 的 LIS 的最小結尾值
+for x in nums:                         # 依序處理每個數字
+    pos = bisect_left(tails, x)        # 二分搜：找第一個 >= x 的位置
+    if pos == len(tails):              # x 比所有 tails 元素都大
+        tails.append(x)                # → 可延伸 LIS
     else:
-        tails[pos] = x
-print(len(tails))
+        tails[pos] = x                 # → 替換：用更小的 x 取代
+print(len(tails))                      # 答案：tails 長度 = LIS 長度
 ```
 
 **測試資料**：輸入 `10 9 2 5 3 7 101 18`，輸出 `4`
@@ -780,23 +772,23 @@ print(len(tails))
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-a = input()
-b = input()
-if len(a) < len(b):
-    short_s, long_s = a, b
+a = input()                            # 讀入第一個字串，例如 "ABCDAB"
+b = input()                            # 讀入第二個字串，例如 "BACB"
+if len(a) < len(b):                    # 確保 short_s 是較短的，減少空間
+    short_s, long_s = a, b             # 長的當外層，短的當內層
 else:
     short_s, long_s = b, a
-dp = [0] * (len(short_s) + 1)
-for ch in long_s:
-    prev_diag = 0
-    for j in range(1, len(short_s) + 1):
-        old = dp[j]
-        if ch == short_s[j - 1]:
-            dp[j] = prev_diag + 1
-        else:
-            dp[j] = max(dp[j], dp[j - 1])
-        prev_diag = old
-print(dp[-1])
+dp = [0] * (len(short_s) + 1)          # dp[j] = 目前的 LCS 長度
+for ch in long_s:                      # 外層：掃描長字串的每個字元
+    prev_diag = 0                      # 每列開始：左上角初始為 0
+    for j in range(1, len(short_s) + 1):  # 內層：掃描短字串的每個字元
+        old = dp[j]                    # 備份舊值（下一輪要當 prev_diag）
+        if ch == short_s[j - 1]:       # 兩字元相同 → 匹配
+            dp[j] = prev_diag + 1      # 從左上角 +1
+        else:                          # 兩字元不同
+            dp[j] = max(dp[j], dp[j - 1])  # 取上方或左方較大值
+        prev_diag = old                # 傳遞舊值給下一輪
+print(dp[-1])                          # 答案：完整 LCS 長度
 ```
 
 **測試資料**：輸入 `ABCDAB` 和 `BACB`，輸出 `3`
@@ -813,18 +805,18 @@ print(dp[-1])
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-nums = list(map(int, input().split()))
-total = sum(nums)
-if total % 2 != 0:
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [1,5,11,5]
+total = sum(nums)                      # 計算總和 = 22
+if total % 2 != 0:                     # 總和為奇數，不可能平分
     print(False)
 else:
-    target = total // 2
-    dp = [False] * (target + 1)
-    dp[0] = True
-    for num in nums:
-        for s in range(target, num - 1, -1):
-            dp[s] = dp[s] or dp[s - num]
-    print(dp[target])
+    target = total // 2                 # 只需判斷能否湊出總和的一半 = 11
+    dp = [False] * (target + 1)        # dp[s] = 能否用某些元素湊出總和 s
+    dp[0] = True                       # 初始值：總和 0 一定可以（什麼都不選）
+    for num in nums:                   # 外層：逐個元素決定要不要放入
+        for s in range(target, num - 1, -1):  # ⚠️ 倒序：避免同一元素被重複使用
+            dp[s] = dp[s] or dp[s - num]      # 轉移：「不選 num」or「選了 num」
+    print(dp[target])                  # 答案：能否湊出 target
 ```
 
 **測試資料**：輸入 `1 5 11 5`，輸出 `True`
@@ -842,17 +834,17 @@ else:
 <summary>解答（先自己寫再打開）</summary>
 
 ```python
-nums = list(map(int, input().split()))
-total = sum(nums)
-target = total // 2
-dp = [False] * (target + 1)
-dp[0] = True
-for num in nums:
-    for s in range(target, num - 1, -1):
-        dp[s] = dp[s] or dp[s - num]
-for s in range(target, -1, -1):
-    if dp[s]:
-        print(total - 2 * s)
+nums = list(map(int, input().split()))  # 讀入陣列，例如 [1,6,11,5]
+total = sum(nums)                      # 總和 = 23
+target = total // 2                     # 目標：找到最接近一半的可達總和 = 11
+dp = [False] * (target + 1)            # dp[s] = 能否用某些元素湊出總和 s
+dp[0] = True                           # 初始值：總和 0 一定可以
+for num in nums:                       # 外層：逐個元素
+    for s in range(target, num - 1, -1):  # ⚠️ 倒序：0/1 背包邏輯，元素只用一次
+        dp[s] = dp[s] or dp[s - num]   # 轉移：不選 or 選
+for s in range(target, -1, -1):        # 從大到小找可達的最大 s（最接近一半）
+    if dp[s]:                          # 找到第一個可達的
+        print(total - 2 * s)           # 兩組和為 s 與 total-s，差為 total-2s
         break
 ```
 
