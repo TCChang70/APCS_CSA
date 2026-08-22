@@ -261,7 +261,7 @@ print(best_overall)
 ```
 
 ### 測試資料
-輸入：`-2 1 -3 4 -1 2 `
+輸入：`-2 1 -3 4 -1 2 1 -5 4`
 輸出：`6`
 ### 表格追蹤
 
@@ -272,90 +272,60 @@ print(best_overall)
 
 > 最大子陣列 = [4, -1, 2, 1]，和 = 6
 
-#### 我們用一個簡單的陣列範例：[2, -3, 4, -1, 2]，來一步步看 Kadane 演算法 的執行過程。
-這個演算法的核心是維持兩個變數：
+### 逐步拆解：Kadane 演算法核心思路
 
-* 目前最大和 (current_max)：一定要包含當前這個數字的連續子陣列最大和。
-* 全域最大和 (global_max)：目前為止看過的所有組合中，總和最大的。
+以陣列 `[2, -3, 4, -1, 2]` 為例，追蹤兩個關鍵變數：
+
+- **`current_max`**：**一定包含當前元素**的連續子陣列最大和（每步都強制納入 x）
+- **`global_max`**：目前為止所見過的全局最大和
+
+| 步驟 | 當前 x | 決策：max(x, current_max+x) | current_max | global_max |
+| --- | --- | --- | --- | --- |
+| 初始 | 2 | — | 2 | 2 |
+| 1 | -3 | max(-3, 2-3=**-1**) → 接上 | -1 | 2 |
+| 2 | 4 | max(**4**, -1+4=3) → 重新開始 | 4 | 4 |
+| 3 | -1 | max(-1, 4-1=**3**) → 接上 | 3 | 4 |
+| 4 | 2 | max(2, 3+2=**5**) → 接上 | 5 | **5** |
+
+> 最大子陣列 = `[4, -1, 2]`，總和 = **5**
+
+**核心決策**：`current_max = max(x, current_max + x)`
+- 若 `x` 本身更大 → 前面的累積是「負擔」，從 x 重新開始新子陣列
+- 若 `current_max + x` 更大 → 繼續把 x 接在前面的子陣列後面
+
+### 進階：追蹤子陣列的起始與結束位置
+
+若需要知道最大子陣列的**確切位置**，需額外記錄索引變化：
+
 ```python
-def maxSubArray(nums):
+def maxSubArray_with_indices(nums):
     current_max = global_max = nums[0]
-    for x in nums[1:]:
-        current_max = max(x, current_max + x)
-        global_max = max(global_max, current_max)
-    return global_max
-
-```
-## 依序檢查每個數字的流程
-
-* 初始狀態（看第一個數字 2）
-* current_max = 2
-   * global_max = 2
-* 步驟 1：看第二個數字 -3
-* 決定 current_max：比較「自己獨立開頭 -3」或「跟前面加在一起 2 + (-3) = -1」。
-   * 較大者為 -1，所以 current_max 更新為 -1。
-   * 決定 global_max：比較之前的 global_max (2) 與現在的 current_max (-1)。
-   * 較大者為 2，所以 global_max 保持 2。
-   * 步驟 2：看第三個數字 4
-* 決定 current_max：比較「自己獨立開頭 4」或「跟前面加在一起 -1 + 4 = 3」。
-   * 較大者為 4（這代表拋棄前面的負累計，重新開始），current_max 更新為 4。
-   * 決定 global_max：比較之前的 global_max (2) 與現在的 current_max (4)。
-   * 較大者為 4，所以 global_max 更新為 4。
-   * 步驟 3：看第四個數字 -1
-* 決定 current_max：比較「自己獨立開頭 -1」或「跟前面加在一起 4 + (-1) = 3」。
-   * 較大者為 3，所以 current_max 更新為 3。
-   * 決定 global_max：比較之前的 global_max (4) 與現在的 current_max (3)。
-   * 較大者為 4，所以 global_max 保持 4。
-   * 步驟 4：看第五個數字 2
-* 決定 current_max：比較「自己獨立開頭 2」或「跟前面加在一起 3 + 2 = 5」。
-   * 較大者為 5，所以 current_max 更新為 5。
-   * 決定 global_max：比較之前的 global_max (4) 與現在的 current_max (5)。
-   * 較大者為 5，所以 global_max 更新為 5。
-   
-------------------------------
-## 最終結果
-陣列走訪完畢，此時 global_max 的數值為 5。
-這代表最大連續子陣列的總和是 5，對應的子陣列就是後面的 [4, -1, 2]。
-
-
-要找出最大子陣列的起始位置和結束位置，我們需要在程式碼中加入幾個變數來追蹤索引（Index）的變化。關鍵邏輯是：
-當 current_max 決定拋棄前面的累積，自己重新開始時，就代表找到了新的可能起點；而當 global_max 被更新時，就代表找到了目前為止最好的起點與終點。
-```python
-def maxSubArrayWithIndices(nums):
-    # 初始狀態
-    current_max = global_max = nums[0]
-    
-    # 追蹤索引的變數
-    start = 0         # 最終最大子陣列的起點
-    end = 0           # 最終最大子陣列的終點
-    temp_start = 0    # 目前正在計算的子陣列起點
+    temp_start = 0      # 目前子陣列的暫定起點
+    start = end = 0     # 最終最大子陣列的起點與終點
 
     for i in range(1, len(nums)):
         x = nums[i]
-        
-        # 決定要加入前面的序列，還是自己重新開始
         if x > current_max + x:
             current_max = x
-            temp_start = i    # 自己重新開始，將暫時起點設為當前位置
+            temp_start = i          # 重新開始，更新暫定起點
         else:
-            current_max = current_max + x
-        
-        # 當發現更大的總和時，更新全域最大值以及真正的起點、終點
+            current_max += x
+
         if current_max > global_max:
             global_max = current_max
-            start = temp_start  # 紀錄真正的起點
-            end = i             # 當前位置就是終點
+            start = temp_start      # 記錄真實起點
+            end = i                 # 當前位置為終點
 
     return global_max, start, end
 
-### 測試前面用過的範例 [2, -3, 4, -1, 2]
+# 測試
 nums = [2, -3, 4, -1, 2]
-max_sum, start_idx, end_idx = maxSubArrayWithIndices(nums)
-
-print(f"最大總和: {max_sum}")
-print(f"起始索引: {start_idx}, 結束索引: {end_idx}")
-print(f"最大子陣列: {nums[start_idx:end_idx+1]}")
+max_sum, s, e = maxSubArray_with_indices(nums)
+print(f"最大總和: {max_sum}")           # 5
+print(f"子陣列索引: [{s}, {e}]")        # [2, 4]
+print(f"最大子陣列: {nums[s:e+1]}")     # [4, -1, 2]
 ```
+
 ---
 
 ## 模型四：0/1 背包
@@ -711,7 +681,7 @@ for cur in range(1, amount + 1):
 print(-1 if dp[amount] == inf else dp[amount])
 ```
 
-**測試資料**：輸入 `2 5 7` 和 `11`，輸出 `3`（5+5+1... 不行！5+2+2+2=11 → 4 個。但 5+2+2+2=4個，其實 11=5+2+2+2 → 4 個硬幣）
+**測試資料**：輸入 `2 5 7` 和 `11`，輸出 `3`（7+2+2=11，共 3 個硬幣；若改 amount=10：5+5=10，共 2 個）
 
 </details>
 
